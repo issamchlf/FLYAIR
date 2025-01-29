@@ -8,5 +8,10 @@ class airplane extends Model
 {
     protected $table = 'airplanes';
     protected $fillable = ['name', 'type', 'max_seats'];
-    public $timestamps = true;
+    
+    public function flights()
+    {
+        return $this->hasMany(Flight::class);
+    }
+    
 }
