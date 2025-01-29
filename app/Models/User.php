@@ -27,7 +27,11 @@ class User extends Authenticatable
 
     public function flights()
     {
-        return $this->belongsToManyMany(Flight::class);
+        return $this->belongsToMany(Flight::class);
+    }
+    public function payments()
+    {
+        return $this->belongsTo(Payment::class);
     }
     
         
