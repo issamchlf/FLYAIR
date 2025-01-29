@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('flight_id')->constrained()->onDelete('cascade');
+            $table->integer('seat_number');
             $table->enum('status', ['pending', 'confirmed', 'cancelled']);
             $table->timestamps();
         });
