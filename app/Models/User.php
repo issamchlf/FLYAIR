@@ -25,11 +25,11 @@ class User extends Authenticatable
         'phone_number',
     ];
 
-    public function flights()
+    public function Flights()
     {
         return $this->belongsToMany(Flight::class);
     }
-    public function payments()
+    public function Payments()
     {
         return $this->belongsTo(Payment::class);
     }
