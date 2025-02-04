@@ -8,10 +8,10 @@ use Illuminate\Routing\Controller;
 class HomeController extends Controller
 {
     public function __construct()
-    {
-        // Apply role middleware for Admin
-        $this->middleware('Auth');
-    }
+{
+    $this->middleware('auth:api', ['except' => ['login', 'register']]);
+}
+
     public function index()
     {
         return view('home');

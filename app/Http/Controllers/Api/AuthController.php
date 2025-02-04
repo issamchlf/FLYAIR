@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
     /**
      * Register a new user (default role: User).
-     * Admin role can only be assigned by admins via other endpoints.
      */
     public function register(Request $request)
     {
@@ -31,7 +31,7 @@ class AuthController extends Controller
         ]);
 
         $token = JWTAuth::fromUser($user);
-        return response()->json(compact('user', 'token'), 201);
+        return response()->json(['user' => $user, 'token' => $token], 201);
     }
 
     /**
@@ -49,8 +49,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Could not create token'], 500);
         }
 
-        $user = JWTAuth::user();
-        return response()->json(compact('user', 'token'));
+        return response()->json(['user' => JWTAuth::user(), 'token' => $token]);
     }
 
     /**
@@ -72,8 +71,8 @@ class AuthController extends Controller
     public function refresh()
     {
         try {
-            $token = JWTAuth::parseToken()->refresh();
-            return response()->json(compact('token'));
+            $token = JWTAuth::refresh(JWTAuth::getToken());
+            return response()->json(['token' => $token]);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Token refresh failed'], 401);
         }
@@ -85,22 +84,18 @@ class AuthController extends Controller
     public function me()
     {
         try {
-            $user = JWTAuth::parseToken()->authenticate();
-            return response()->json(compact('user'));
+            return response()->json(['user' => JWTAuth::parseToken()->authenticate()]);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
     }
 
     /**
-     * Admin-only: Change user role (add this to routes protected by AdminMiddleware).
+     * Admin-only: Change user role.
      */
     public function changeRole(Request $request, $userId)
     {
-        // Authorization check (add in middleware)
-        $request->validate([
-            'role' => 'required|in:Admin,User,Guest'
-        ]);
+        $request->validate(['role' => 'required|in:Admin,User,Guest']);
 
         $user = User::findOrFail($userId);
         $user->update(['role' => $request->role]);
