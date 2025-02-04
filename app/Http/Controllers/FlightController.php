@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\flight;
+use App\Models\Flight;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class FlightController extends Controller
 {
@@ -12,7 +14,9 @@ class FlightController extends Controller
      */
     public function index()
     {
-        //
+        $flights = flight::all();
+
+        return view('flight', compact('flights'));
     }
 
     /**
@@ -20,7 +24,10 @@ class FlightController extends Controller
      */
     public function create()
     {
-        //
+        if (Auth::user()->isAdmin=true) {
+
+            return view('flight.create');
+        }
     }
 
     /**
@@ -28,38 +35,99 @@ class FlightController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $flight = flight::create([
+            'airplane_id'      => $request->airplane_id,
+            'flight_number'    => $request->flight_number,    
+            'departure_airport' => $request->departure_airport,
+            'arrival_airport'  => $request->arrival_airport,
+            'departure_time'   => $request->departure_time,
+            'arrival_time'     => $request->arrival_time,
+            'price'            => $request->price,
+            'available_seats'  => $request->available_seats,
+            'status'           => $request->status
+
+        ]);
+        $flight->save();
+        return redirect()->route('flight');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(flight $flight)
+    public function show(Request $request, string $id)
     {
-        //
+        $flight = flight::findOrFail($id);
+        $booked = count($flight->users()->where('user_id', Auth::id())->get());
+
+        if ($request->action === 'book' && !$booked)
+        {
+            $this->book($flight, Auth::id());
+            return (Redirect::to(route('flight.show', $flight->id)));
+
+        }
+        if ($request->action === 'debook' && $booked)
+        {
+            $this->debook($flight, Auth::id());
+            return (Redirect::to(route('flight.show', $flight->id)));
+        }
+        return view('flight.show', compact('flight', 'booked'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(flight $flight)
+    public function edit(flight $id)
     {
-        //
+        if(Auth::user()->isAdmin=true) {
+
+            $flight = flight::find($id);
+            return view('flight.edit', compact('flight'));
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, flight $flight)
+    public function update(Request $request, flight $id)
     {
-        //
+        $flight = flight::find($id);
+        $flight->update([
+            'airplane_id'      => $request->airplane_id,
+            'flight_number'    => $request->flight_number,    
+            'departure_airport' => $request->departure_airport,
+            'arrival_airport'  => $request->arrival_airport,
+            'departure_time'   => $request->departure_time,
+            'arrival_time'     => $request->arrival_time,
+            'price'            => $request->price,
+            'available_seats'  => $request->available_seats,
+            'status'           => $request->status
+        ]);
+
+        $flight->save();
+        return redirect()->route('flight');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(flight $flight)
+    public function destroy(flight $id)
     {
-        //
+        if(Auth::user()->isAdmin=true) {
+
+            $flight = flight::find($id);
+
+            $flight->delete();
+            return redirect()->route('flight');
+        }
     }
+    public function book($flight, $userId)
+    {
+        $flight->users()->attach($userId);
+    }
+
+    public function debook($flight, $userId)
+    {
+        $flight->users()->detach($userId);
+    }
+
 }
