@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\airplane;
+use App\Models\Airplane;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -13,16 +13,8 @@ class AirplaneController extends Controller
      */
     public function index()
     {
-        $airplanes = airplane::all();
+        $airplanes = Airplane::all();
         return response()->json($airplanes, 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -30,7 +22,14 @@ class AirplaneController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'type' => 'required|string',
+            'max_seats' => 'required|integer',
+        ]);
+
+        $airplane = Airplane::create($validated);
+        return response()->json($airplane, 201);
     }
 
     /**
