@@ -12,7 +12,9 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        //
+        $payments = payment::all();
+
+        return view('payment', compact('payments'));
     }
 
     /**
