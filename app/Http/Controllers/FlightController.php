@@ -120,4 +120,14 @@ class FlightController extends Controller
             return redirect()->route('flight');
         }
     }
+    public function book($flight, $userId)
+    {
+        $flight->users()->attach($userId);
+    }
+
+    public function debook($flight, $userId)
+    {
+        $flight->users()->detach($userId);
+    }
+
 }
