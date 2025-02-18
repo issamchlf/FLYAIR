@@ -12,12 +12,42 @@ class FlightController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $flights = flight::all();
-
+        $query = Flight::query();
+    
+        // Apply filters if present
+        if ($request->has('max_price') && $request->max_price != '') {
+            $query->where('price', '<=', $request->max_price);
+        }
+    
+        if ($request->has('departure_time') && $request->departure_time != '') {
+            switch ($request->departure_time) {
+                case 'morning':
+                    $query->whereTime('departure_time', '>=', '06:00:00')
+                          ->whereTime('departure_time', '<', '12:00:00');
+                    break;
+                case 'afternoon':
+                    $query->whereTime('departure_time', '>=', '12:00:00')
+                          ->whereTime('departure_time', '<', '18:00:00');
+                    break;
+                case 'evening':
+                    $query->whereTime('departure_time', '>=', '18:00:00')
+                          ->whereTime('departure_time', '<', '24:00:00');
+                    break;
+            }
+        }
+    
+        if ($request->has('departure_airport') && $request->departure_airport != '') {
+            $query->where('departure_airport', $request->departure_airport);
+        }
+    
+        // Get filtered flights
+        $flights = $query->get();
+    
         return view('flight', compact('flights'));
     }
+    
 
     /**
      * Show the form for creating a new resource.
