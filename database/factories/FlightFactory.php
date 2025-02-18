@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\flight;
 use Illuminate\Support\Str;
+use App\Models\Airplane;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -10,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class FlightFactory extends Factory
 {
+    protected $model = flight::class;
     /**
      * Define the model's default state.
      *
@@ -18,7 +21,7 @@ class FlightFactory extends Factory
     public function definition(): array
     {
         return [
-            //'airplane_id' => Airplane::factory(),
+            'airplane_id' => Airplane::factory(),
             'flight_number' => strtoupper(Str::random(6)),
             'departure_airport' => $this->faker->city,
             'arrival_airport' => $this->faker->city,
