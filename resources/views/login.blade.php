@@ -25,6 +25,11 @@
       <button type="submit" class="w-full bg-[#FFA500] text-black font-bold py-2 rounded-lg hover:bg-[#e69500] transition duration-300">
         Register
       </button>
+      @if (session('status'))
+        <div class="mt-4 text-green-600">
+          {{ session('status') }}
+        </div>
+      @endif
     </form>
   </div>
 </div>

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FlightController;
 use App\Http\Controllers\Api\AuthController;
 
 Route::get('/', function () {
@@ -9,8 +10,10 @@ Route::get('/', function () {
 Route::get('/user', function () {
     return view('user');
 });
+Route::get('/Login', [AuthController::class, 'login'])->name('login');
+Route::get('/flights', [FlightController::class, 'index'])->name('flight.index');
+
 Route::post('/register', [AuthController::class, 'register'])->name('register');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::middleware(['jwt.auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
